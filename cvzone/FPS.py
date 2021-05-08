@@ -33,8 +33,8 @@ class FPS:
             if img is None:
                 return fps
             else:
-                cv2.putText(img, str(int(fps)), pos, cv2.FONT_HERSHEY_PLAIN, scale,
-                            color, thickness)
+                cv2.putText(img, f'FPS: {int(fps)}', pos, cv2.FONT_HERSHEY_PLAIN,
+                            scale, color, thickness)
                 return fps, img
         except:
             return 0

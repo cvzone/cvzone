@@ -84,8 +84,6 @@ class PoseDetector:
         if angle < 0:
             angle += 360
 
-        # print(angle)
-
         # Draw
         if draw:
             cv2.line(img, (x1, y1), (x2, y2), (255, 255, 255), 3)

@@ -8,8 +8,7 @@ setup(
     description='Computer Vision Helping Library',
     author='Computer Vision Zone',
     author_email='contact@computervision.zone',
-    url='https://github.com/user/reponame',
-    download_url='https://github.com/user/reponame/archive/v_01.tar.gz',
+    url='https://github.com/cvzone/cvzone.git',
     keywords=['ComputerVision', 'HandTracking', 'FaceTracking', 'PoseEstimation'],
     install_requires=[
         'opencv-python',

@@ -99,25 +99,26 @@ class HandDetector:
         """
         if self.results.multi_hand_landmarks:
             myHandType = self.handType()
+            fingers = []
             # Thumb
             if myHandType == "Right":
                 if self.lmList[self.tipIds[0]][1] > self.lmList[self.tipIds[0] - 1][1]:
-                    self.fingers.append(1)
+                    fingers.append(1)
                 else:
-                    self.fingers.append(0)
+                    fingers.append(0)
             else:
                 if self.lmList[self.tipIds[0]][1] < self.lmList[self.tipIds[0] - 1][1]:
-                    self.fingers.append(1)
+                    fingers.append(1)
                 else:
-                    self.fingers.append(0)
+                    fingers.append(0)
 
             # 4 Fingers
             for id in range(1, 5):
                 if self.lmList[self.tipIds[id]][2] < self.lmList[self.tipIds[id] - 2][2]:
-                    self.fingers.append(1)
+                    fingers.append(1)
                 else:
-                    self.fingers.append(0)
-        return self.fingers
+                    fingers.append(0)
+        return fingers
 
     def findDistance(self, p1, p2, img, draw=True):
         """
@@ -157,8 +158,9 @@ class HandDetector:
             else:
                 return "Left"
 
+
 def main():
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     detector = HandDetector(detectionCon=0.8, maxHands=1)
     while True:
         # Get image frame

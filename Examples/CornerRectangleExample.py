@@ -1,9 +1,8 @@
 import cvzone
 import cv2
 
-pTime = 0
 cap = cv2.VideoCapture(0)
-detector = cvzone.HandDetector(detectionCon=0.8)
+detector = cvzone.HandDetector()
 
 while True:
     # Get image frame
@@ -12,7 +11,6 @@ while True:
     # Find the hand and its landmarks
     img = detector.findHands(img, draw=False)
     lmList, bbox = detector.findPosition(img, draw=False)
-    print(detector.handType())
     if bbox:
         # Draw  Corner Rectangle
         cvzone.cornerRect(img, bbox)
