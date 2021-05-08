@@ -1,0 +1,94 @@
+"""
+Supporting Functions for Computer vision using OpenCV
+By: Computer Vision Zone
+Website: https://www.computervision.zone/
+"""
+
+import cv2
+import numpy as np
+import copy
+
+
+def stackImages(_imgList, cols, scale):
+    """
+    Stack Images together to display in a single window
+    :param _imgList: list of images to stack
+    :param cols: the num of img in a row
+    :param scale: bigger~1+ ans smaller~1-
+    :return: Stacked Image
+    """
+    imgList = copy.deepcopy(_imgList)
+
+    # make the array full by adding blank img, otherwise the openCV can't work
+    totalImages = len(imgList)
+    rows = totalImages // cols if totalImages // cols * cols == totalImages else totalImages // cols + 1
+    blankImages = cols * rows - totalImages
+
+    width = imgList[0].shape[1]
+    height = imgList[0].shape[0]
+    imgBlank = np.zeros((height, width, 3), np.uint8)
+    imgList.extend([imgBlank] * blankImages)
+
+    # resize the images
+    for i in range(cols * rows):
+        imgList[i] = cv2.resize(imgList[i], (0, 0), None, scale, scale)
+        if len(imgList[i].shape) == 2:
+            imgList[i] = cv2.cvtColor(imgList[i], cv2.COLOR_GRAY2BGR)
+
+    # put the images in a board
+    hor = [imgBlank] * rows
+    for y in range(rows):
+        line = []
+        for x in range(cols):
+            line.append(imgList[y * cols + x])
+        hor[y] = np.hstack(line)
+    ver = np.vstack(hor)
+    return ver
+
+
+def cornerRect(img, bbox, l=30, t=5, rt=1,
+               colorR=(255, 0, 255), colorC=(0, 255, 0)):
+    """
+    :param img: Image to draw on.
+    :param bbox: Bounding box [x, y, w, h]
+    :param l: length of the corner line
+    :param t: thickness of the corner line
+    :param rt: thickness of the rectangle
+    :param colorR: Color of the Rectangle
+    :param colorC: Color of the Corners
+    :return:
+    """
+    x, y, w, h = bbox
+    x1, y1 = x + w, y + h
+
+    cv2.rectangle(img, bbox, colorR, rt)
+    # Top Left  x,y
+    cv2.line(img, (x, y), (x + l, y), colorC, t)
+    cv2.line(img, (x, y), (x, y + l), colorC, t)
+    # Top Right  x1,y
+    cv2.line(img, (x1, y), (x1 - l, y), colorC, t)
+    cv2.line(img, (x1, y), (x1, y + l), colorC, t)
+    # Bottom Left  x,y1
+    cv2.line(img, (x, y1), (x + l, y1), colorC, t)
+    cv2.line(img, (x, y1), (x, y1 - l), colorC, t)
+    # Bottom Right  x1,y1
+    cv2.line(img, (x1, y1), (x1 - l, y1), colorC, t)
+    cv2.line(img, (x1, y1), (x1, y1 - l), colorC, t)
+
+    return img
+
+
+def main():
+    cap = cv2.VideoCapture(0)
+    while True:
+        success, img = cap.read()
+        imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        imgList = [img, img, imgGray, img, imgGray]
+        stackedImg = stackImages(imgList, 2, 0.5)
+
+        cv2.imshow("stackedImg", stackedImg)
+        cv2.waitKey(1)
+
+
+if __name__ == "__main__":
+    main()
