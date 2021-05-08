@@ -1,7 +1,7 @@
 # CVZone
 
 
-This is a Computer vision pacakage that makes its easy to run Image processing and AI functions. At the core it uses [OpenCV](https://github.com/opencv/opencv) and [Mediapipe](https://github.com/google/mediapipe) libraries. 
+This is a Computer vision package that makes its easy to run Image processing and AI functions. At the core it uses [OpenCV](https://github.com/opencv/opencv) and [Mediapipe](https://github.com/google/mediapipe) libraries. 
 
 ## Installation
 You can  simply use pip to install the latest version of cvzone.
