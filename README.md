@@ -66,8 +66,10 @@ while True:
     
     # Display
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
-
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 </pre>
 
 #### Finding How many finger are up
@@ -130,7 +132,10 @@ while True:
         cv2.circle(img, (lmList[14][1], lmList[14][2]), 15, (0, 0, 255), cv2.FILLED)
 
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 
 </pre>
 
@@ -157,7 +162,10 @@ while True:
     if faces:
         print(faces[0])
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 </pre>
 
 <hr>
@@ -185,7 +193,10 @@ while True:
     stackedImg = cvzone.stackImages(imgList, 3, 0.4)
 
     cv2.imshow("stackedImg", stackedImg)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 
 </pre>
 
