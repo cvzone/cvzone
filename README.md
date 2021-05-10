@@ -30,7 +30,10 @@ while True:
     img, bboxs = detector.findFaces(img)
     print(bboxs)
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 </pre>
 
 <hr>
