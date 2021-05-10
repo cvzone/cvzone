@@ -4,3 +4,4 @@ from cvzone.FaceDetectionModule import FaceDetector
 from cvzone.PoseModule import PoseDetector
 from cvzone.Utils import stackImages, cornerRect
 from cvzone.FPS import FPS
+from cvzone.SerialModule import SerialObject
