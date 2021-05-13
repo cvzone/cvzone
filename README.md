@@ -30,7 +30,10 @@ while True:
     img, bboxs = detector.findFaces(img)
     print(bboxs)
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 </pre>
 
 <hr>
@@ -63,8 +66,10 @@ while True:
     
     # Display
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
-
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 </pre>
 
 #### Finding How many finger are up
@@ -127,7 +132,10 @@ while True:
         cv2.circle(img, (lmList[14][1], lmList[14][2]), 15, (0, 0, 255), cv2.FILLED)
 
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 
 </pre>
 
@@ -154,7 +162,10 @@ while True:
     if faces:
         print(faces[0])
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 </pre>
 
 <hr>
@@ -182,7 +193,10 @@ while True:
     stackedImg = cvzone.stackImages(imgList, 3, 0.4)
 
     cv2.imshow("stackedImg", stackedImg)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 
 </pre>
 
@@ -196,7 +210,7 @@ while True:
   <img width="640" height="360" src="https://github.com/cvzone/cvzone/blob/master/Results/cornerRect.jpg">
 </p>
 
-
+<hr>
 
 <pre>
 import cvzone
@@ -221,8 +235,6 @@ while True:
     cv2.waitKey(1)
 </pre>
 
-<hr>
-
 ### FPS
 
 <hr>
@@ -245,24 +257,5 @@ while True:
     fps, img = fpsReader.update(img,pos=(50,80),color=(0,255,0),scale=5,thickness=5)
     cv2.imshow("Image", img)
     cv2.waitKey(1)
-</pre>
-
-
-<hr>
-
-### Serial Communication
-
-<hr>
-
-<pre>
-import cvzone
-import time
-
-mySerial = cvzone.SerialObject("COM3", 9600, 1)
-while True:
-    mySerial.sendData([1, 1, 1, 1, 1])
-    time.sleep(2)
-    mySerial.sendData([0, 0, 0, 0, 0])
-    time.sleep(2)
 </pre>
 
