@@ -6,5 +6,6 @@ cvzone\FaceDetectionModule.py
 cvzone\FaceMeshModule.py
 cvzone\HandTrackingModule.py
 cvzone\PoseModule.py
+cvzone\SerialModule.py
 cvzone\Utils.py
 cvzone\__init__.py
