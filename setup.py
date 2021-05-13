@@ -14,6 +14,7 @@ setup(
         'opencv-python',
         'mediapipe',
         'numpy',
+        'pyserial',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
