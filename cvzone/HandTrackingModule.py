@@ -37,13 +37,21 @@ class HandDetector:
         self.fingers = []
         self.lmList = []
 
-    def findHands(self, img, draw=True):
+    def findHands(self, img, draw=True,connection_color = (0,255,0),landmarks_color = (255,0,0):
         """
         Finds hands in a BGR image.
         :param img: Image to find the hands in.
         :param draw: Flag to draw the output on the image.
         :return: Image with or without drawings
         """
+        self.connection_color = (0,255,0)
+        self.landmarks_color = (255,0,0)
+        if draw == True:
+            if connection_color != (0,255,0):
+                self.connection_color = connection_color
+            if landmarks_color != (255,0,0):
+                self.landmarks_color = landmarks_color
+    
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(imgRGB)
 
@@ -51,7 +59,10 @@ class HandDetector:
             for handLms in self.results.multi_hand_landmarks:
                 if draw:
                     self.mpDraw.draw_landmarks(img, handLms,
-                                               self.mpHands.HAND_CONNECTIONS)
+                                               self.mpHands.HAND_CONNECTIONS,
+                                               self.mpDraw.DrawingSpec(color=self.connection_color, thickness=2, circle_radius=4),
+                                               self.mpDraw.DrawingSpec(color=self.landmarks_color, thickness=2, circle_radius=4),
+                                              )
         return img
 
     def findPosition(self, img, handNo=0, draw=True):
