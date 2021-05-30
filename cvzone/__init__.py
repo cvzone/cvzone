@@ -5,3 +5,4 @@ from cvzone.PoseModule import PoseDetector
 from cvzone.Utils import stackImages, cornerRect
 from cvzone.FPS import FPS
 from cvzone.SerialModule import SerialObject
+from cvzone.PIDModule import PID

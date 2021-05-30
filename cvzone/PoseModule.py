@@ -49,17 +49,39 @@ class PoseDetector:
                                            self.mpPose.POSE_CONNECTIONS)
         return img
 
-    def findPosition(self, img, draw=True):
+    def findPosition(self, img, draw=True, bboxWithHands=False):
         self.lmList = []
+        self.bboxInfo = {}
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
                 h, w, c = img.shape
-                # print(id, lm)
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 self.lmList.append([id, cx, cy])
-                if draw:
-                    cv2.circle(img, (cx, cy), 5, (255, 0, 0), cv2.FILLED)
-        return self.lmList
+
+            # Bounding Box
+            ad = abs(self.lmList[12][1] - self.lmList[11][1]) // 2
+            if bboxWithHands:
+                x1 = self.lmList[16][1] - ad
+                x2 = self.lmList[15][1] + ad
+            else:
+                x1 = self.lmList[12][1] - ad
+                x2 = self.lmList[11][1] + ad
+            if self.upBody:
+                y2 = self.lmList[23][2] + ad
+            else:
+                y2 = self.lmList[29][2] + ad
+            y1 = self.lmList[1][2] - ad
+            bbox = (x1, y1, x2 - x1, y2 - y1)
+            cx, cy = bbox[0] + (bbox[2] // 2), \
+                     bbox[1] + bbox[3] // 2
+
+            self.bboxInfo = {"bbox": bbox, "center": (cx, cy)}
+
+            if draw:
+                cv2.rectangle(img, bbox, (255, 0, 255), 3)
+                cv2.circle(img, (cx, cy), 5, (255, 0, 0), cv2.FILLED)
+
+        return self.lmList, self.bboxInfo
 
     def findAngle(self, img, p1, p2, p3, draw=True):
         """
@@ -98,16 +120,17 @@ class PoseDetector:
                         cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), 2)
         return angle
 
+
 def main():
     cap = cv2.VideoCapture(0)
-    detector = PoseDetector()
+    detector = PoseDetector(upBody=True)
     while True:
         success, img = cap.read()
         img = detector.findPose(img)
-        lmList = detector.findPosition(img, draw=False)
-        if len(lmList) != 0:
-            print(lmList[14])
-            cv2.circle(img, (lmList[14][1], lmList[14][2]), 15, (0, 0, 255), cv2.FILLED)
+        lmList, bboxInfo = detector.findPosition(img, bboxWithHands=False)
+        if bboxInfo:
+            center = bboxInfo["center"]
+            cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
 
         cv2.imshow("Image", img)
         cv2.waitKey(1)
