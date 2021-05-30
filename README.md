@@ -19,6 +19,9 @@ You can  simply use pip to install the latest version of cvzone.
 </p>
 
 <pre>
+import cvzone
+import cv2
+
 cap = cv2.VideoCapture(0)
 detector = cvzone.FaceDetector()
 while True:
