@@ -1,6 +1,6 @@
 """
 Serial Module
-Uses "serialDevice" Package
+Uses "pySerial" Package
 By: Computer Vision Zone
 Website: https://www.computervision.zone/
 """
@@ -14,7 +14,7 @@ class SerialObject:
     Allow to transmit data to a Serial Device like Arduino.
     Example send $255255000
     """
-    def __init__(self, portNo, baudRate, digits):
+    def __init__(self, portNo, baudRate=9600, digits=1):
         """
         Initialize the serial object.
         :param portNo: Port Number.
@@ -44,6 +44,17 @@ class SerialObject:
         except:
             return False
 
+    def getData(self):
+        """
+        :param numOfVals: number of vals to retrieve
+        :return: list of data received
+        """
+        data = self.ser.readline()
+        data = data.decode("utf-8")
+        data = data.split('#')
+        dataList = []
+        [dataList.append(d) for d in data]
+        return dataList[:-1]
 
 def main():
     mySerial = SerialObject("COM3", 9600, 1)

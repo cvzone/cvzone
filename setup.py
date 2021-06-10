@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='cvzone',
     packages=['cvzone'],
-    version='1.1.2',
+    version='1.2.0',
     license='MIT',
     description='Computer Vision Helping Library',
     author='Computer Vision Zone',
@@ -12,9 +12,7 @@ setup(
     keywords=['ComputerVision', 'HandTracking', 'FaceTracking', 'PoseEstimation'],
     install_requires=[
         'opencv-python',
-        'mediapipe',
-        'numpy',
-        'pyserial'
+        'numpy'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
