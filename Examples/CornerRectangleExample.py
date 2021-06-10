@@ -1,8 +1,9 @@
 import cvzone
+from cvzone.HandTrackingModule import HandDetector
 import cv2
 
 cap = cv2.VideoCapture(0)
-detector = cvzone.HandDetector()
+detector = HandDetector()
 
 while True:
     # Get image frame

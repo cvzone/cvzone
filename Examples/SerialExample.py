@@ -1,7 +1,7 @@
-import cvzone
+from cvzone.SerialModule import SerialObject
 import time
 
-mySerial = cvzone.SerialObject("COM3", 9600, 1)
+mySerial = SerialObject("COM6", 9600, 1)
 while True:
     mySerial.sendData([1, 1, 1, 1, 1])
     time.sleep(2)

@@ -68,28 +68,32 @@ class HandDetector:
         xList = []
         yList = []
         bbox = []
+        bboxInfo =[]
         self.lmList = []
         if self.results.multi_hand_landmarks:
             myHand = self.results.multi_hand_landmarks[handNo]
             for id, lm in enumerate(myHand.landmark):
                 h, w, c = img.shape
-                cx, cy = int(lm.x * w), int(lm.y * h)
-                xList.append(cx)
-                yList.append(cy)
-                self.lmList.append([id, cx, cy])
+                px, py = int(lm.x * w), int(lm.y * h)
+                xList.append(px)
+                yList.append(py)
+                self.lmList.append([px, py])
                 if draw:
-                    cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)
+                    cv2.circle(img, (px, py), 5, (255, 0, 255), cv2.FILLED)
             xmin, xmax = min(xList), max(xList)
             ymin, ymax = min(yList), max(yList)
             boxW, boxH = xmax - xmin, ymax - ymin
             bbox = xmin, ymin, boxW, boxH
+            cx, cy = bbox[0] + (bbox[2] // 2), \
+                     bbox[1] + (bbox[3] // 2)
+            bboxInfo = {"id": id, "bbox": bbox,"center": (cx, cy)}
 
             if draw:
                 cv2.rectangle(img, (bbox[0] - 20, bbox[1] - 20),
                               (bbox[0] + bbox[2] + 20, bbox[1] + bbox[3] + 20),
                               (0, 255, 0), 2)
 
-        return self.lmList, bbox
+        return self.lmList, bboxInfo
 
     def fingersUp(self):
         """
@@ -102,19 +106,19 @@ class HandDetector:
             fingers = []
             # Thumb
             if myHandType == "Right":
-                if self.lmList[self.tipIds[0]][1] > self.lmList[self.tipIds[0] - 1][1]:
+                if self.lmList[self.tipIds[0]][0] > self.lmList[self.tipIds[0] - 1][0]:
                     fingers.append(1)
                 else:
                     fingers.append(0)
             else:
-                if self.lmList[self.tipIds[0]][1] < self.lmList[self.tipIds[0] - 1][1]:
+                if self.lmList[self.tipIds[0]][0] < self.lmList[self.tipIds[0] - 1][0]:
                     fingers.append(1)
                 else:
                     fingers.append(0)
 
             # 4 Fingers
             for id in range(1, 5):
-                if self.lmList[self.tipIds[id]][2] < self.lmList[self.tipIds[id] - 2][2]:
+                if self.lmList[self.tipIds[id]][1] < self.lmList[self.tipIds[id] - 2][1]:
                     fingers.append(1)
                 else:
                     fingers.append(0)
@@ -134,8 +138,8 @@ class HandDetector:
         """
 
         if self.results.multi_hand_landmarks:
-            x1, y1 = self.lmList[p1][1], self.lmList[p1][2]
-            x2, y2 = self.lmList[p2][1], self.lmList[p2][2]
+            x1, y1 = self.lmList[p1][0], self.lmList[p1][1]
+            x2, y2 = self.lmList[p2][0], self.lmList[p2][1]
             cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
 
             if draw:
@@ -153,7 +157,7 @@ class HandDetector:
         :return: "Right" or "Left"
         """
         if self.results.multi_hand_landmarks:
-            if self.lmList[17][1] < self.lmList[5][1]:
+            if self.lmList[17][0] < self.lmList[5][0]:
                 return "Right"
             else:
                 return "Left"
@@ -167,7 +171,7 @@ def main():
         success, img = cap.read()
         # Find the hand and its landmarks
         img = detector.findHands(img)
-        lmList, bbox = detector.findPosition(img)
+        lmList, bboxInfo = detector.findPosition(img)
         print(detector.handType())
 
         # Display
