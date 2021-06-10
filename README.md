@@ -19,11 +19,12 @@ You can  simply use pip to install the latest version of cvzone.
 </p>
 
 <pre>
-import cvzone
+from cvzone.FaceDetectionModule import FaceDetector
 import cv2
 
 cap = cv2.VideoCapture(0)
-detector = cvzone.FaceDetector()
+detector = FaceDetector()
+
 while True:
     success, img = cap.read()
     img, bboxs = detector.findFaces(img)
@@ -38,6 +39,7 @@ while True:
         break
 cap.release()
 cv2.destroyAllWindows()
+
 </pre>
 
 <hr>
@@ -52,13 +54,13 @@ cv2.destroyAllWindows()
 
 #### Basic Code Example 
 <pre>
-import cvzone
+from cvzone.HandTrackingModule import HandDetector
 import cv2
 
 cap = cv2.VideoCapture(0)
 cap.set(3, 1280)
 cap.set(4, 720)
-detector = cvzone.HandDetector(detectionCon=0.5, maxHands=1)
+detector = HandDetector(detectionCon=0.5, maxHands=1)
 
 while True:
     # Get image frame
@@ -66,8 +68,9 @@ while True:
 
     # Find the hand and its landmarks
     img = detector.findHands(img)
-    lmList, bbox = detector.findPosition(img)
-    
+    lmList, bboxInfo = detector.findPosition(img)
+    if lmList:
+        bbox = bboxInfo['bbox']
     # Display
     cv2.imshow("Image", img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -79,6 +82,8 @@ cv2.destroyAllWindows()
 #### Finding How many finger are up
 <pre>
 if lmList:
+        bbox = bboxInfo['bbox']
+        
         # Find how many fingers are up
         fingers = detector.fingersUp()
         totalFingers = fingers.count(1)
@@ -89,10 +94,13 @@ if lmList:
 #### Finding distance between two fingers
 <pre>                 
 if lmList:
+        bbox = bboxInfo['bbox']
+
         # Find Distance Between Two Fingers
         distance, img, info = detector.findDistance(8, 12, img)
         cv2.putText(img, f'Dist:{int(distance)}', (bbox[0] + 400, bbox[1] - 30),
                     cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
+
 </pre>
 
 #### Find Hand Type - i.e. Left or Right 
@@ -104,6 +112,8 @@ if lmList:
 
 <pre>
 if lmList:
+        bbox = bboxInfo['bbox']
+
         # Find Hand Type
         myHandType = detector.handType()
         cv2.putText(img, f'Hand:{myHandType}', (bbox[0], bbox[1] - 30),
@@ -122,11 +132,11 @@ if lmList:
 </p>
 
 <pre>
-import cvzone
+from cvzone.PoseModule import PoseDetector
 import cv2
 
 cap = cv2.VideoCapture(0)
-detector = cvzone.PoseDetector(upBody=True)
+detector = PoseDetector(upBody=True)
 while True:
     success, img = cap.read()
     img = detector.findPose(img)
@@ -155,11 +165,11 @@ cv2.destroyAllWindows()
 </p>
 
 <pre>
-import cvzone
+from cvzone.FaceMeshModule import FaceMeshDetector
 import cv2
 
 cap = cv2.VideoCapture(0)
-detector = cvzone.FaceMeshDetector(maxFaces=2)
+detector = FaceMeshDetector(maxFaces=2)
 while True:
     success, img = cap.read()
     img, faces = detector.findFaceMesh(img)
@@ -218,10 +228,11 @@ cv2.destroyAllWindows()
 
 <pre>
 import cvzone
+from cvzone.HandTrackingModule import HandDetector
 import cv2
 
 cap = cv2.VideoCapture(0)
-detector = cvzone.HandDetector()
+detector = HandDetector()
 
 while True:
     # Get image frame
@@ -236,7 +247,11 @@ while True:
 
     # Display
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
+
 </pre>
 
 ### FPS
@@ -260,6 +275,9 @@ while True:
     success, img = cap.read()
     fps, img = fpsReader.update(img,pos=(50,80),color=(0,255,0),scale=5,thickness=5)
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
 </pre>
 
