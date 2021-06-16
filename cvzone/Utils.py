@@ -60,8 +60,8 @@ def cornerRect(img, bbox, l=30, t=5, rt=1,
     """
     x, y, w, h = bbox
     x1, y1 = x + w, y + h
-
-    cv2.rectangle(img, bbox, colorR, rt)
+    if rt != 0:
+        cv2.rectangle(img, bbox, colorR, rt)
     # Top Left  x,y
     cv2.line(img, (x, y), (x + l, y), colorC, t)
     cv2.line(img, (x, y), (x, y + l), colorC, t)
@@ -78,15 +78,50 @@ def cornerRect(img, bbox, l=30, t=5, rt=1,
     return img
 
 
+def findContours(img, imgPre, minArea=1000, sort=True, filter=0, drawCon=True, c=(255, 0, 0)):
+    """
+    Finds Contours in an image
+    :param img: Image on which we want to draw
+    :param imgPre: Image on which we want to find contours
+    :param minArea: Minimum Area to detect as valid contour
+    :param sort: True will sort the contours by area (biggest first)
+    :param filter: Filters based on the corner points e.g. 4 = Rectangle or square
+    :param drawCon: draw contours boolean
+    :return: Foudn contours with [contours, Area, BoundingBox, Center]
+    """
+    conFound = []
+    imgContours = img.copy()
+    contours, hierarchy = cv2.findContours(imgPre, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area > minArea:
+            peri = cv2.arcLength(cnt, True)
+            approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
+            # print(len(approx))
+            if len(approx) == filter or filter == 0:
+                if drawCon: cv2.drawContours(imgContours, cnt, -1, c, 3)
+                x, y, w, h = cv2.boundingRect(approx)
+                cx, cy = x + (w // 2), y + (h // 2)
+                cv2.rectangle(imgContours, (x, y), (x + w, y + h), c, 2)
+                cv2.circle(imgContours, (x + (w // 2), y + (h // 2)), 5, c, cv2.FILLED)
+                conFound.append({"cnt":cnt, "area":area, "bbox":[x, y, w, h], "center":[cx, cy]})
+
+    if sort:
+        conFound = sorted(conFound, key=lambda x: x["area"], reverse=True)
+
+    return imgContours, conFound
+
+
 def main():
     cap = cv2.VideoCapture(0)
     while True:
         success, img = cap.read()
         imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         imgList = [img, img, imgGray, img, imgGray]
-        stackedImg = stackImages(imgList, 2, 0.5)
+        imgStacked = stackImages(imgList, 2, 0.5)
 
-        cv2.imshow("stackedImg", stackedImg)
+        cv2.imshow("stackedImg", imgStacked)
         cv2.waitKey(1)
 
 
