@@ -12,7 +12,8 @@ setup(
     keywords=['ComputerVision', 'HandTracking', 'FaceTracking', 'PoseEstimation'],
     install_requires=[
         'opencv-python',
-        'numpy'
+        'numpy',
+        'mediapipe'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
