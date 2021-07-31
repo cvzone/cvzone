@@ -10,13 +10,11 @@ import time
 import logging
 import serial.tools.list_ports
 
-
 class SerialObject:
     """
     Allow to transmit data to a Serial Device like Arduino.
     Example send $255255000
     """
-
     def __init__(self, portNo=None, baudRate=9600, digits=1):
         """
         Initialize the serial object.
@@ -33,7 +31,7 @@ class SerialObject:
             for p in ports:
                 if "Arduino" in p.description:
                     print(f'{p.description} Connected')
-                    self.ser = p
+                    self.ser = serial.Serial(p.device)
                     self.ser.baudrate = baudRate
                     connected = True
             if not connected:
@@ -45,6 +43,7 @@ class SerialObject:
                 print("Serial Device Connected")
             except:
                 logging.warning("Serial Device Not Connected")
+
 
     def sendData(self, data):
         """
@@ -71,7 +70,6 @@ class SerialObject:
         dataList = []
         [dataList.append(d) for d in data]
         return dataList[:-1]
-
 
 def main():
     arduino = SerialObject()
