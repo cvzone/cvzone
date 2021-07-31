@@ -105,12 +105,41 @@ def findContours(img, imgPre, minArea=1000, sort=True, filter=0, drawCon=True, c
                 cx, cy = x + (w // 2), y + (h // 2)
                 cv2.rectangle(imgContours, (x, y), (x + w, y + h), c, 2)
                 cv2.circle(imgContours, (x + (w // 2), y + (h // 2)), 5, c, cv2.FILLED)
-                conFound.append({"cnt":cnt, "area":area, "bbox":[x, y, w, h], "center":[cx, cy]})
+                conFound.append({"cnt": cnt, "area": area, "bbox": [x, y, w, h], "center": [cx, cy]})
 
     if sort:
         conFound = sorted(conFound, key=lambda x: x["area"], reverse=True)
 
     return imgContours, conFound
+
+
+def overlayPNG(imgBack, imgFront, pos=[0, 0]):
+    hf, wf, cf = imgFront.shape
+    hb, wb, cb = imgBack.shape
+    *_, mask = cv2.split(imgFront)
+    maskBGRA = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGRA)
+    maskBGR = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    imgRGBA = cv2.bitwise_and(imgFront, maskBGRA)
+    imgRGB = cv2.cvtColor(imgRGBA, cv2.COLOR_BGRA2BGR)
+
+    imgMaskFull = np.zeros((hb, wb, cb), np.uint8)
+    imgMaskFull[pos[1]:hf + pos[1], pos[0]:wf + pos[0], :] = imgRGB
+    imgMaskFull2 = np.ones((hb, wb, cb), np.uint8) * 255
+    maskBGRInv = cv2.bitwise_not(maskBGR)
+    imgMaskFull2[pos[1]:hf + pos[1], pos[0]:wf + pos[0], :] = maskBGRInv
+
+    imgBack = cv2.bitwise_and(imgBack, imgMaskFull2)
+    imgBack = cv2.bitwise_or(imgBack, imgMaskFull)
+
+    return imgBack
+
+
+def rotateImage(img, angle, scale=1):
+    h, w = img.shape[:2]
+    center = (w / 2, h / 2)
+    rotate_matrix = cv2.getRotationMatrix2D(center=center, angle=angle, scale=scale)
+    img = cv2.warpAffine(src=img, M=rotate_matrix, dsize=(w, h))
+    return img
 
 
 def main():
