@@ -173,6 +173,7 @@ def textWithBackground(img, text, font, fontScale, textPos, textThickness=1,text
 
 def textBlurBackground(img, text, font, fontScale, textPos, textThickness=1,textColor=(0,255,0),kneral=(33,33) , pad_x=3, pad_y=3):
     """
+    
     Draw text with background blured,  control the blur value, with kernal(odd, odd)
     @param img:(mat) which you want to draw text
     @param text: (string) text you want draw
@@ -185,7 +186,11 @@ def textBlurBackground(img, text, font, fontScale, textPos, textThickness=1,text
     @param pad_x: int(pixels)  padding of in x direction
     @param pad_y: int(pixels)  padding of in y direction
     @return: img mat, with text drawn, with background blured
+    
+    call the function: 
+     img =textBlurBackground(img, 'Blured Background Text', cv2.FONT_HERSHEY_COMPLEX, 0.9, (20, 60),2, (0,255, 0), (49,49), 13, 13 )
     """
+    
     (t_w, t_h), _= cv2.getTextSize(text, font, fontScale, textThickness) # getting the text size
     x, y = textPos
     blur_roi = img[y-pad_y-t_h: y+pad_y, x-pad_x:x+t_w+pad_x] # croping Text Background
@@ -199,9 +204,8 @@ def main():
     cap = cv2.VideoCapture(0)
     while True:
         success, img = cap.read()
-        textBlurBackground(img, 'Computer Vision', cv2.FONT_HERSHEY_COMPLEX, 1.4, (10, 190),2, (0,255, 0), (49,49), 10, 10 )
-        img=textWithBackground(img, 'CVZONE', cv2.FONT_HERSHEY_COMPLEX, 1.3, (50,50), bgOpacity=0.6, pad_x=10, pad_y=10)
-        img=textWithBackground(img, 'This funcition let you draw the text with background, it simplest and easiest way.', cv2.FONT_HERSHEY_COMPLEX, 0.4, (10,100),textColor=(0,255,255), bgOpacity=0.8, pad_x=10, pad_y=10)
+        textBlurBackground(img, 'Blured Background Text', cv2.FONT_HERSHEY_COMPLEX, 0.9, (20, 60),2, (0,255, 0), (49,49), 13, 13 )
+        img=textWithBackground(img, 'Colored Background Texts', cv2.FONT_HERSHEY_COMPLEX, 0.6, (20,100), textThickness=2, textColor=(0,0, 0),bgColor=(0,255,0), bgOpacity=0.6, pad_x=10, pad_y=10)
         imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         imgList = [img, img, imgGray, img, imgGray]
         imgStacked = stackImages(imgList, 2, 0.5)
