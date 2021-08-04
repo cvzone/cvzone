@@ -142,16 +142,29 @@ def rotateImage(img, angle, scale=1):
     return img
 
 
+def textWithBackground(img, text, font, fontScale, textPos, textThickness=1,textColor=(0,255,0), bgColor=(0,0,0), pad_x=3, pad_y=3, bgOpacity=0.5):
+    (t_w, t_h), _= cv2.getTextSize(text, font, fontScale, textThickness) # getting the text size
+    x, y = textPos
+    overlay = img.copy()
+    cv2.rectangle(overlay, (x-pad_x, y+ pad_y), (x+t_w+pad_x, y-t_h-pad_y), bgColor,-1)
+    new_img = cv2.addWeighted(overlay, bgOpacity, img, 1 - bgOpacity, 0)
+    cv2.putText(new_img,text, textPos,font, fontScale, textColor,textThickness )
+    img = new_img
+    return img
+
 def main():
     cap = cv2.VideoCapture(0)
     while True:
         success, img = cap.read()
+        img=textWithBackground(img, 'CVZONE', cv2.FONT_HERSHEY_COMPLEX, 1.3, (50,50), bgOpacity=0.6, pad_x=10, pad_y=10)
+        img=textWithBackground(img, 'This funcition let you draw the text with background, it simplest and easiest way.', cv2.FONT_HERSHEY_COMPLEX, 0.4, (10,100),textColor=(0,255,255), bgOpacity=0.8, pad_x=10, pad_y=10)
         imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         imgList = [img, img, imgGray, img, imgGray]
         imgStacked = stackImages(imgList, 2, 0.5)
 
         cv2.imshow("stackedImg", imgStacked)
-        cv2.waitKey(1)
+        if cv2.waitKey(1) ==ord('q'):
+            break
 
 
 if __name__ == "__main__":
