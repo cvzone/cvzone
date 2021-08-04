@@ -139,23 +139,67 @@ def rotateImage(img, angle, scale=1):
     center = (w / 2, h / 2)
     rotate_matrix = cv2.getRotationMatrix2D(center=center, angle=angle, scale=scale)
     img = cv2.warpAffine(src=img, M=rotate_matrix, dsize=(w, h))
+
     return img
 
 
 def textWithBackground(img, text, font, fontScale, textPos, textThickness=1,textColor=(0,255,0), bgColor=(0,0,0), pad_x=3, pad_y=3, bgOpacity=0.5):
+    """
+    Draws text with background, with  control transparency
+    @param img:(mat) which you want to draw text
+    @param text: (string) text you want draw
+    @param font: fonts face, like FONT_HERSHEY_COMPLEX, FONT_HERSHEY_PLAIN etc.
+    @param fontScale: (double) the size of text, how big it should be.
+    @param textPos: tuple(x,y) position where you want to draw text
+    @param textThickness:(int) fonts weight, how bold it should be
+    @param textPos: tuple(x,y) position where you want to draw text
+    @param textThickness:(int) fonts weight, how bold it should be.
+    @param textColor: tuple(BGR), values -->0 to 255 each
+    @param bgColor: tuple(BGR), values -->0 to 255 each
+    @param pad_x: int(pixels)  padding of in x direction
+    @param pad_y: int(pixels) 1 to 1.0 (), controls transparency of  text background 
+    @return: img(mat) with draw with background
+    """
     (t_w, t_h), _= cv2.getTextSize(text, font, fontScale, textThickness) # getting the text size
     x, y = textPos
-    overlay = img.copy()
-    cv2.rectangle(overlay, (x-pad_x, y+ pad_y), (x+t_w+pad_x, y-t_h-pad_y), bgColor,-1)
-    new_img = cv2.addWeighted(overlay, bgOpacity, img, 1 - bgOpacity, 0)
-    cv2.putText(new_img,text, textPos,font, fontScale, textColor,textThickness )
+    overlay = img.copy() # coping the image
+    cv2.rectangle(overlay, (x-pad_x, y+ pad_y), (x+t_w+pad_x, y-t_h-pad_y), bgColor,-1) # draw rectangle 
+    new_img = cv2.addWeighted(overlay, bgOpacity, img, 1 - bgOpacity, 0) # overlaying the rectangle on the image.
+    cv2.putText(new_img,text, textPos,font, fontScale, textColor,textThickness ) # draw in text
     img = new_img
+
+    return img
+
+
+def textBlurBackground(img, text, font, fontScale, textPos, textThickness=1,textColor=(0,255,0),kneral=(33,33) , pad_x=3, pad_y=3):
+    """
+    Draw text with background blured,  control the blur value, with kernal(odd, odd)
+    @param img:(mat) which you want to draw text
+    @param text: (string) text you want draw
+    @param font: fonts face, like FONT_HERSHEY_COMPLEX, FONT_HERSHEY_PLAIN etc.
+    @param fontScale: (double) the size of text, how big it should be.
+    @param textPos: tuple(x,y) position where you want to draw text
+    @param textThickness:(int) fonts weight, how bold it should be.
+    @param textColor: tuple(BGR), values -->0 to 255 each
+    @param kneral: tuple(3,3) int as odd number:  higher the value, more blurry background would be
+    @param pad_x: int(pixels)  padding of in x direction
+    @param pad_y: int(pixels)  padding of in y direction
+    @return: img mat, with text drawn, with background blured
+    """
+    (t_w, t_h), _= cv2.getTextSize(text, font, fontScale, textThickness) # getting the text size
+    x, y = textPos
+    blur_roi = img[y-pad_y-t_h: y+pad_y, x-pad_x:x+t_w+pad_x] # croping Text Background
+    img[y-pad_y-t_h: y+pad_y, x-pad_x:x+t_w+pad_x]=cv2.blur(blur_roi, kneral)  # merging the blured background to img
+    cv2.putText(img,text, textPos,font, fontScale, textColor,textThickness )          
+    # cv2.imshow('blur roi', blur_roi)
+    # cv2.imshow('blured', img)
     return img
 
 def main():
     cap = cv2.VideoCapture(0)
     while True:
         success, img = cap.read()
+        textBlurBackground(img, 'Computer Vision', cv2.FONT_HERSHEY_COMPLEX, 1.4, (10, 190),2, (0,255, 0), (49,49), 10, 10 )
         img=textWithBackground(img, 'CVZONE', cv2.FONT_HERSHEY_COMPLEX, 1.3, (50,50), bgOpacity=0.6, pad_x=10, pad_y=10)
         img=textWithBackground(img, 'This funcition let you draw the text with background, it simplest and easiest way.', cv2.FONT_HERSHEY_COMPLEX, 0.4, (10,100),textColor=(0,255,255), bgOpacity=0.8, pad_x=10, pad_y=10)
         imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
