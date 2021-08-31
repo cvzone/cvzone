@@ -37,7 +37,7 @@ class HandDetector:
         self.fingers = []
         self.lmList = []
 
-    def findHands(self, img, draw=True):
+    def findHands(self, img, draw=True, flipType=True):
         """
         Finds hands in a BGR image.
         :param img: Image to find the hands in.
@@ -46,90 +46,91 @@ class HandDetector:
         """
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(imgRGB)
+        allHands = []
+        h, w, c = img.shape
+        if  self.results.multi_hand_landmarks:
+            for handType,handLms in zip(self.results.multi_handedness,self.results.multi_hand_landmarks):
+                myHand={}
+                ## lmList
+                mylmList = []
+                xList = []
+                yList = []
+                for id, lm in enumerate(handLms.landmark):
+                    px, py = int(lm.x * w), int(lm.y * h)
+                    mylmList.append([px, py])
+                    xList.append(px)
+                    yList.append(py)
 
-        if self.results.multi_hand_landmarks:
-            for handLms in self.results.multi_hand_landmarks:
+                ## bbox
+                xmin, xmax = min(xList), max(xList)
+                ymin, ymax = min(yList), max(yList)
+                boxW, boxH = xmax - xmin, ymax - ymin
+                bbox = xmin, ymin, boxW, boxH
+                cx, cy = bbox[0] + (bbox[2] // 2), \
+                         bbox[1] + (bbox[3] // 2)
+
+                myHand["lmList"] = mylmList
+                myHand["bbox"] = bbox
+                myHand["center"] =  (cx, cy)
+
+                if flipType:
+                    if handType.classification[0].label =="Right":
+                        myHand["type"] = "Left"
+                    else:
+                        myHand["type"] = "Right"
+                else:myHand["type"] = handType.classification[0].label
+                allHands.append(myHand)
+
+                ## draw
                 if draw:
                     self.mpDraw.draw_landmarks(img, handLms,
                                                self.mpHands.HAND_CONNECTIONS)
-        return img
+                    cv2.rectangle(img, (bbox[0] - 20, bbox[1] - 20),
+                                  (bbox[0] + bbox[2] + 20, bbox[1] + bbox[3] + 20),
+                                  (255, 0, 255), 2)
+                    cv2.putText(img,myHand["type"],(bbox[0] - 30, bbox[1] - 30),cv2.FONT_HERSHEY_PLAIN,
+                                2,(255, 0, 255),2)
+        if draw:
+            return allHands,img
+        else:
+            return allHands
 
-    def findPosition(self, img, handNo=0, draw=True):
-        """
-        Finds landmarks of a single hand and puts them in a list
-        in pixel format. Also finds the bounding box around the hand.
-
-        :param img: main image to find hand in
-        :param handNo: hand id if more than one hand detected
-        :param draw: Flag to draw the output on the image.
-        :return: list of landmarks in pixel format; bounding box
-        """
-
-        xList = []
-        yList = []
-        bbox = []
-        bboxInfo =[]
-        self.lmList = []
-        if self.results.multi_hand_landmarks:
-            myHand = self.results.multi_hand_landmarks[handNo]
-            for id, lm in enumerate(myHand.landmark):
-                h, w, c = img.shape
-                px, py = int(lm.x * w), int(lm.y * h)
-                xList.append(px)
-                yList.append(py)
-                self.lmList.append([px, py])
-                if draw:
-                    cv2.circle(img, (px, py), 5, (255, 0, 255), cv2.FILLED)
-            xmin, xmax = min(xList), max(xList)
-            ymin, ymax = min(yList), max(yList)
-            boxW, boxH = xmax - xmin, ymax - ymin
-            bbox = xmin, ymin, boxW, boxH
-            cx, cy = bbox[0] + (bbox[2] // 2), \
-                     bbox[1] + (bbox[3] // 2)
-            bboxInfo = {"id": id, "bbox": bbox,"center": (cx, cy)}
-
-            if draw:
-                cv2.rectangle(img, (bbox[0] - 20, bbox[1] - 20),
-                              (bbox[0] + bbox[2] + 20, bbox[1] + bbox[3] + 20),
-                              (0, 255, 0), 2)
-
-        return self.lmList, bboxInfo
-
-    def fingersUp(self):
+    def fingersUp(self,myHand):
         """
         Finds how many fingers are open and returns in a list.
         Considers left and right hands separately
         :return: List of which fingers are up
         """
+        myHandType =myHand["type"]
+        myLmList = myHand["lmList"]
         if self.results.multi_hand_landmarks:
-            myHandType = self.handType()
             fingers = []
             # Thumb
             if myHandType == "Right":
-                if self.lmList[self.tipIds[0]][0] > self.lmList[self.tipIds[0] - 1][0]:
+                if myLmList[self.tipIds[0]][0] > myLmList[self.tipIds[0] - 1][0]:
                     fingers.append(1)
                 else:
                     fingers.append(0)
             else:
-                if self.lmList[self.tipIds[0]][0] < self.lmList[self.tipIds[0] - 1][0]:
+                if myLmList[self.tipIds[0]][0] < myLmList[self.tipIds[0] - 1][0]:
                     fingers.append(1)
                 else:
                     fingers.append(0)
 
             # 4 Fingers
             for id in range(1, 5):
-                if self.lmList[self.tipIds[id]][1] < self.lmList[self.tipIds[id] - 2][1]:
+                if myLmList[self.tipIds[id]][1] < myLmList[self.tipIds[id] - 2][1]:
                     fingers.append(1)
                 else:
                     fingers.append(0)
         return fingers
 
-    def findDistance(self, p1, p2, img, draw=True):
+    def findDistance(self,p1, p2, img=None):
         """
         Find the distance between two landmarks based on their
         index numbers.
-        :param p1: Point1 - Index of Landmark 1.
-        :param p2: Point2 - Index of Landmark 2.
+        :param p1: Point1
+        :param p2: Point2
         :param img: Image to draw on.
         :param draw: Flag to draw the output on the image.
         :return: Distance between the points
@@ -137,43 +138,54 @@ class HandDetector:
                  Line information
         """
 
-        if self.results.multi_hand_landmarks:
-            x1, y1 = self.lmList[p1][0], self.lmList[p1][1]
-            x2, y2 = self.lmList[p2][0], self.lmList[p2][1]
-            cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
-
-            if draw:
-                cv2.circle(img, (x1, y1), 15, (255, 0, 255), cv2.FILLED)
-                cv2.circle(img, (x2, y2), 15, (255, 0, 255), cv2.FILLED)
-                cv2.line(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
-                cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
-
-            length = math.hypot(x2 - x1, y2 - y1)
-            return length, img, [x1, y1, x2, y2, cx, cy]
-
-    def handType(self):
-        """
-        Checks if the hand is left or right
-        :return: "Right" or "Left"
-        """
-        if self.results.multi_hand_landmarks:
-            if self.lmList[17][0] < self.lmList[5][0]:
-                return "Right"
-            else:
-                return "Left"
+        x1, y1 = p1
+        x2, y2 = p2
+        cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+        length = math.hypot(x2 - x1, y2 - y1)
+        info = (x1, y1, x2, y2, cx, cy)
+        if img is not None:
+            cv2.circle(img, (x1, y1), 15, (255, 0, 255), cv2.FILLED)
+            cv2.circle(img, (x2, y2), 15, (255, 0, 255), cv2.FILLED)
+            cv2.line(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
+            cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
+            return length,info, img
+        else:
+            return length, info
 
 
 def main():
     cap = cv2.VideoCapture(0)
-    detector = HandDetector(detectionCon=0.8, maxHands=1)
+    detector = HandDetector(detectionCon=0.8, maxHands=2)
     while True:
         # Get image frame
         success, img = cap.read()
         # Find the hand and its landmarks
-        img = detector.findHands(img)
-        lmList, bboxInfo = detector.findPosition(img)
-        print(detector.handType())
+        hands, img = detector.findHands(img)  # with draw
+        # hands = detector.findHands(img, draw=False)  # without draw
 
+        if hands:
+            # Hand 1
+            hand1 = hands[0]
+            lmList1 = hand1["lmList"]  # List of 21 Landmark points
+            bbox1 = hand1["bbox"]  # Bounding box info x,y,w,h
+            centerPoint1 = hand1['center']  # center of the hand cx,cy
+            handType1 = hand1["type"]  # Handtype Left or Right
+
+            fingers1 = detector.fingersUp(hand1)
+
+            if len(hands) == 2:
+                # Hand 2
+                hand2 = hands[1]
+                lmList2 = hand2["lmList"]  # List of 21 Landmark points
+                bbox2 = hand2["bbox"]  # Bounding box info x,y,w,h
+                centerPoint2 = hand2['center']  # center of the hand cx,cy
+                handType2 = hand2["type"]  # Hand Type "Left" or "Right"
+
+                fingers2 = detector.fingersUp(hand2)
+
+                # Find Distance between two Landmarks. Could be same hand or different hands
+                length, info, img = detector.findDistance(lmList1[8], lmList2[8], img)  # with draw
+                # length, info = detector.findDistance(lmList1[8], lmList2[8])  # with draw
         # Display
         cv2.imshow("Image", img)
         cv2.waitKey(1)
