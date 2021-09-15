@@ -13,8 +13,8 @@ class PoseDetector:
     Estimates Pose points of a human body using the mediapipe library.
     """
 
-    def __init__(self, mode=False, upBody=False, smooth=True,
-                 detectionCon=0.5, trackCon=0.5):
+    def __init__(self, mode=False, smooth=True,
+                 detectionCon=0.5 , trackCon=0.5):
         """
         :param mode: In static mode, detection is done on each image: slower
         :param upBody: Upper boy only flag
@@ -24,15 +24,16 @@ class PoseDetector:
         """
 
         self.mode = mode
-        self.upBody = upBody
         self.smooth = smooth
         self.detectionCon = detectionCon
         self.trackCon = trackCon
 
         self.mpDraw = mp.solutions.drawing_utils
         self.mpPose = mp.solutions.pose
-        self.pose = self.mpPose.Pose(self.mode, self.upBody, self.smooth,
-                                     self.detectionCon, self.trackCon)
+        self.pose = self.mpPose.Pose(static_image_mode=self.mode,
+                                     smooth_landmarks=self.smooth,
+                                     min_detection_confidence=self.detectionCon,
+                                     min_tracking_confidence=self.trackCon)
 
     def findPose(self, img, draw=True):
         """
@@ -66,10 +67,8 @@ class PoseDetector:
             else:
                 x1 = self.lmList[12][1] - ad
                 x2 = self.lmList[11][1] + ad
-            if self.upBody:
-                y2 = self.lmList[23][2] + ad
-            else:
-                y2 = self.lmList[29][2] + ad
+
+            y2 = self.lmList[29][2] + ad
             y1 = self.lmList[1][2] - ad
             bbox = (x1, y1, x2 - x1, y2 - y1)
             cx, cy = bbox[0] + (bbox[2] // 2), \
@@ -120,7 +119,7 @@ class PoseDetector:
                         cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), 2)
         return angle
 
-    def findDistance(self, p1, p2, img, draw=True,r=15, t=3):
+    def findDistance(self, p1, p2, img, draw=True, r=15, t=3):
         x1, y1 = self.lmList[p1][1:]
         x2, y2 = self.lmList[p2][1:]
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
@@ -134,14 +133,13 @@ class PoseDetector:
 
         return length, img, [x1, y1, x2, y2, cx, cy]
 
-
     def angleCheck(self, myAngle, targetAngle, addOn=20):
         return targetAngle - addOn < myAngle < targetAngle + addOn
 
 
 def main():
     cap = cv2.VideoCapture(0)
-    detector = PoseDetector(upBody=True)
+    detector = PoseDetector()
     while True:
         success, img = cap.read()
         img = detector.findPose(img)
