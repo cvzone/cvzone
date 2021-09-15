@@ -113,7 +113,7 @@ from cvzone.PoseModule import PoseDetector
 import cv2
 
 cap = cv2.VideoCapture(0)
-detector = PoseDetector(upBody=True)
+detector = PoseDetector()
 while True:
     success, img = cap.read()
     img = detector.findPose(img)
