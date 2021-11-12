@@ -17,7 +17,7 @@ class HandDetector:
     provides bounding box info of the hand found.
     """
 
-    def __init__(self, mode=False, maxHands=2, detectionCon=0.5, minTrackCon=0.5):
+    def __init__(self, mode=False,maxHands=2, detectionCon=0.5, minTrackCon=0.5):
         """
         :param mode: In static mode, detection is done on each image: slower
         :param maxHands: Maximum number of hands to detect
@@ -30,8 +30,8 @@ class HandDetector:
         self.minTrackCon = minTrackCon
 
         self.mpHands = mp.solutions.hands
-        self.hands = self.mpHands.Hands(self.mode, self.maxHands,
-                                        self.detectionCon, self.minTrackCon)
+        self.hands = self.mpHands.Hands(static_image_mode=self.mode, max_num_hands=self.maxHands,
+                                        min_detection_confidence=self.detectionCon, min_tracking_confidence = self.minTrackCon)
         self.mpDraw = mp.solutions.drawing_utils
         self.tipIds = [4, 8, 12, 16, 20]
         self.fingers = []
