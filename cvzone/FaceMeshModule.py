@@ -14,21 +14,23 @@ class FaceMeshDetector:
     Helps acquire the landmark points in pixel format
     """
 
-    def __init__(self, staticMode=False, maxFaces=2, minDetectionCon=0.5, minTrackCon=0.5):
+    def __init__(self, staticMode=False, maxFaces=2, minDetectionCon=0.5, minTrackCon=0.5, refineLandmarks=False):
         """
         :param staticMode: In static mode, detection is done on each image: slower
         :param maxFaces: Maximum number of faces to detect
         :param minDetectionCon: Minimum Detection Confidence Threshold
         :param minTrackCon: Minimum Tracking Confidence Threshold
+        :param refineLandmarks: Whether to further refine the landmark coordinates around the eyes and lips
         """
         self.staticMode = staticMode
         self.maxFaces = maxFaces
         self.minDetectionCon = minDetectionCon
         self.minTrackCon = minTrackCon
+        self.refineLandmarks = refineLandmarks
 
         self.mpDraw = mp.solutions.drawing_utils
         self.mpFaceMesh = mp.solutions.face_mesh
-        self.faceMesh = self.mpFaceMesh.FaceMesh(self.staticMode, self.maxFaces,
+        self.faceMesh = self.mpFaceMesh.FaceMesh(self.staticMode, self.maxFaces, self.refineLandmarks,
                                                  self.minDetectionCon, self.minTrackCon)
         self.drawSpec = self.mpDraw.DrawingSpec(thickness=1, circle_radius=2)
 
@@ -45,7 +47,7 @@ class FaceMeshDetector:
         if self.results.multi_face_landmarks:
             for faceLms in self.results.multi_face_landmarks:
                 if draw:
-                    self.mpDraw.draw_landmarks(img, faceLms, self.mpFaceMesh.FACEMESH_CONTOURS,
+                    self.mpDraw.draw_landmarks(img, faceLms, self.mpFaceMesh.FACE_CONNECTIONS,
                                                self.drawSpec, self.drawSpec)
                 face = []
                 for id, lm in enumerate(faceLms.landmark):
