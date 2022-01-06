@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='cvzone',
     packages=['cvzone'],
-    version='1.5.2',
+    version='1.5.4',
     license='MIT',
     description='Computer Vision Helping Library',
     author='Computer Vision Zone',

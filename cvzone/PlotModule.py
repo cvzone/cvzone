@@ -28,7 +28,7 @@ class LivePlot:
         self.xList = [x for x in range(0, 100)]
         self.ptime = 0
 
-    def update(self, y):
+    def update(self, y, color=(255, 0, 255)):
 
         if time.time() - self.ptime > self.interval:
 
@@ -57,7 +57,7 @@ class LivePlot:
                     cv2.line(self.imgPlot, (int((self.xList[i - 1] * (self.w // 100))) - (self.w // 10),
                                             self.yList[i - 1]),
                              (int((self.xList[i] * (self.w // 100)) - (self.w // 10)),
-                              self.yList[i]), (255, 0, 255), 2)
+                              self.yList[i]), color, 2)
             self.ptime = time.time()
 
         return self.imgPlot
@@ -80,10 +80,10 @@ class LivePlot:
             cv2.line(self.imgPlot, (0, y), (self.w, y),
                      (50, 50, 50), 1)
             #  Y Label
-            cv2.putText(self.imgPlot, f'{int((self.h - y) * (self.yLimit[1] / self.h))}',
+            cv2.putText(self.imgPlot,
+                        f'{int(self.yLimit[1] - ((y / 50) * ((self.yLimit[1] - self.yLimit[0]) / (self.h / 50))))}',
                         (10, y), cv2.FONT_HERSHEY_PLAIN,
                         1, (150, 150, 150), 1)
-
         cv2.putText(self.imgPlot, self.char,
                     (self.w - 100, self.h - 25), cv2.FONT_HERSHEY_PLAIN,
                     5, (150, 150, 150), 5)
