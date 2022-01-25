@@ -14,7 +14,7 @@ class PoseDetector:
     """
 
     def __init__(self, mode=False, smooth=True,
-                 detectionCon=0.5 , trackCon=0.5):
+                 detectionCon=0.5, trackCon=0.5):
         """
         :param mode: In static mode, detection is done on each image: slower
         :param upBody: Upper boy only flag
@@ -56,8 +56,8 @@ class PoseDetector:
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
                 h, w, c = img.shape
-                cx, cy = int(lm.x * w), int(lm.y * h)
-                self.lmList.append([id, cx, cy])
+                cx, cy, cz = int(lm.x * w), int(lm.y * h), int(lm.z * w)
+                self.lmList.append([id, cx, cy, cz])
 
             # Bounding Box
             ad = abs(self.lmList[12][1] - self.lmList[11][1]) // 2

@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='cvzone',
     packages=['cvzone'],
-    version='1.5.4',
+    version='1.5.5',
     license='MIT',
     description='Computer Vision Helping Library',
     author='Computer Vision Zone',
@@ -23,5 +23,7 @@ setup(
         'Programming Language :: Python :: 3.6',  # Specify which pyhton versions that you want to support
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
 )
