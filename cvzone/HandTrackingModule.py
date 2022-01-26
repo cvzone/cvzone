@@ -95,7 +95,7 @@ class HandDetector:
         else:
             return allHands
 
-    def fingersUp(self,myHand):
+    def fingersUp(self,myHand, flipType=True):
         """
         Finds how many fingers are open and returns in a list.
         Considers left and right hands separately
@@ -106,16 +106,28 @@ class HandDetector:
         if self.results.multi_hand_landmarks:
             fingers = []
             # Thumb
-            if myHandType == "Right":
-                if myLmList[self.tipIds[0]][0] > myLmList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
+            if flipType:
+                if myHandType == "Right":
+                    if myLmList[self.tipIds[0]][0] > myLmList[self.tipIds[0] - 1][0]:
+                        fingers.append(1)
+                    else:
+                        fingers.append(0)
                 else:
-                    fingers.append(0)
+                    if myLmList[self.tipIds[0]][0] < myLmList[self.tipIds[0] - 1][0]:
+                        fingers.append(1)
+                    else:
+                        fingers.append(0)
             else:
-                if myLmList[self.tipIds[0]][0] < myLmList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
+                if myHandType == "Left":
+                    if myLmList[self.tipIds[0]][0] > myLmList[self.tipIds[0] - 1][0]:
+                        fingers.append(1)
+                    else:
+                        fingers.append(0)
                 else:
-                    fingers.append(0)
+                    if myLmList[self.tipIds[0]][0] < myLmList[self.tipIds[0] - 1][0]:
+                        fingers.append(1)
+                    else:
+                        fingers.append(0)
 
             # 4 Fingers
             for id in range(1, 5):
