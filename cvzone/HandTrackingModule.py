@@ -127,7 +127,7 @@ class HandDetector:
                     fingers.append(0)
         return fingers
 
-    def findDistance(self, p1, p2, img=None):
+    def findDistance(self, p1, p2, img=None, draw=Flase):
         """
         Find the distance between two landmarks based on their
         index numbers.
@@ -145,14 +145,20 @@ class HandDetector:
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
         length = math.hypot(x2 - x1, y2 - y1)
         info = (x1, y1, x2, y2, cx, cy)
-        if img is not None:
-            cv2.circle(img, (x1, y1), 15, (255, 0, 255), cv2.FILLED)
-            cv2.circle(img, (x2, y2), 15, (255, 0, 255), cv2.FILLED)
-            cv2.line(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
-            cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
-            return length, info, img
+        if Draw:
+            if img is not None:
+                cv2.circle(img, (x1, y1), 15, (255, 0, 255), cv2.FILLED)
+                cv2.circle(img, (x2, y2), 15, (255, 0, 255), cv2.FILLED)
+                cv2.line(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
+                cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
+                return length, info, img
+            else:
+                return length, info
         else:
-            return length, info
+            if img is not None:
+                return length, info, img
+            else:
+                return length, info
 
 
 def main():
