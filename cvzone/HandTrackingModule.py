@@ -103,25 +103,29 @@ class HandDetector:
         Considers left and right hands separately
         :return: List of which fingers are up
         """
-        myHandType = myHand["type"]
-        myLmList = myHand["lmList"]
+        myLmList = myHand['lmList']
         if self.results.multi_hand_landmarks:
             fingers = []
+            cor_degree = self.sol_degree(myLmList[0][0], myLmList[0][1], myLmList[17][0], myLmList[17][1])
             # Thumb
-            if myHandType == "Right":
-                if myLmList[self.tipIds[0]][0] > myLmList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
-                else:
-                    fingers.append(0)
+            Thumb_1 = [myLmList[self.tipIds[0]][0], myLmList[self.tipIds[0]][1]]
+            Thumb_2 = [myLmList[self.tipIds[0] - 1][0], myLmList[self.tipIds[0] - 1][1]]
+            Thumb_f1 = self.retouchHands((math.pi / 2) - cor_degree, myLmList[0][0], myLmList[0][1], Thumb_1[0],
+                                         Thumb_1[1])
+            Thumb_f2 = self.retouchHands((math.pi / 2) - cor_degree, myLmList[0][0], myLmList[0][1], Thumb_2[0],
+                                         Thumb_2[1])
+            if abs(Thumb_f1[0]) > abs(Thumb_f2[0]):
+                fingers.append(1)
             else:
-                if myLmList[self.tipIds[0]][0] < myLmList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
-                else:
-                    fingers.append(0)
+                fingers.append(0)
 
             # 4 Fingers
             for id in range(1, 5):
-                if myLmList[self.tipIds[id]][1] < myLmList[self.tipIds[id] - 2][1]:
+                Fingers_1 = [myLmList[self.tipIds[id]][0], myLmList[self.tipIds[id]][1]]
+                Fingers_2 = [myLmList[self.tipIds[id] - 2][0], myLmList[self.tipIds[id] - 2][1]]
+                vec_t1 = ((Fingers_1[0] - myLmList[0][0]) ** 2 + (Fingers_1[1] - myLmList[0][1]) ** 2) ** 0.5
+                vec_t2 = ((Fingers_2[0] - myLmList[0][0]) ** 2 + (Fingers_2[1] - myLmList[0][1]) ** 2) ** 0.5
+                if vec_t1 > vec_t2:
                     fingers.append(1)
                 else:
                     fingers.append(0)
@@ -153,6 +157,21 @@ class HandDetector:
             return length, info, img
         else:
             return length, info
+
+    def retouchHands(self, co_degree, zx, zy, fx, fy):
+        f_degree = self.sol_degree(zx, zy, fx, fy)
+        R = ((fx - zx)**2 + (fy - zy)**2)**0.5
+        co_x = math.cos(f_degree + co_degree) * R
+        co_y = math.sin(f_degree + co_degree) * R
+        return [co_x, co_y]
+
+    def sol_degree(self, zx, zy, fx, fy):
+        try:
+            re = math.atan((fy - zy) / (fx - zx))
+        except:
+            if fy > zy: re = math.pi / 2
+            else: re = (math.pi * 2) * 3 / 4
+        return re
 
 
 def main():
