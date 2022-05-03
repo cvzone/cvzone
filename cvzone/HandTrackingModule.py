@@ -18,7 +18,7 @@ class HandDetector:
     provides bounding box info of the hand found.
     """
 
-    def __init__(self, mode=False, maxHands=2, detectionCon=0.5, minTrackCon=0.5, stablizerVal=3):
+    def __init__(self, mode=False, maxHands=2, detectionCon=0.5, minTrackCon=0.5, stablizerVal=2):
         """
         :param mode: In static mode, detection is done on each image: slower
         :param maxHands: Maximum number of hands to detect
@@ -39,7 +39,7 @@ class HandDetector:
         self.tipIds = [4, 8, 12, 16, 20]
         self.fingers = []
         self.lmList = []
-        self.previous_hands = [[{"lmList": [[0, 0, 0]] * 21, "bbox": (0, 0, 0), "center": (0, 0)}, None]]
+        self.previous_hands = [[[[0, 0, 0]] * 21, (0, 0, 0, 0), (0, 0), None]]
 
     def findHands(self, img, draw=True, flipType=True):
         """
@@ -73,6 +73,17 @@ class HandDetector:
                 cx, cy = bbox[0] + (bbox[2] // 2), \
                          bbox[1] + (bbox[3] // 2)
 
+                if len(allHands) > len(self.previous_hands):
+                    self.previous_hands.append([mylmList, bbox, (cx, cy), handLms])
+
+                else:
+
+                    if not np.allclose(mylmList, self.previous_hands[len(allHands) - 1][0], atol=self.stablizerVal):
+                        self.previous_hands[len(allHands) - 1] = [mylmList, bbox, (cx, cy), handLms]
+
+                    else:
+                        mylmList, bbox, (cx, cy), handLms = self.previous_hands[len(allHands) - 1]
+
                 myHand["lmList"] = mylmList
                 myHand["bbox"] = bbox
                 myHand["center"] = (cx, cy)
@@ -84,17 +95,6 @@ class HandDetector:
                         myHand["type"] = "Right"
                 else:
                     myHand["type"] = handType.classification[0].label
-
-                if len(allHands) > len(self.previous_hands):
-                    self.previous_hands.append(myHand)
-
-                else:
-
-                    if not np.allclose(myHand["lmList"], self.previous_hands[len(allHands) - 1][0]["lmList"], atol=self.stablizerVal):
-                        self.previous_hands[len(allHands) - 1] = [myHand, handLms]
-
-                    else:
-                        myHand, handLms = self.previous_hands[len(allHands) - 1]
 
                 allHands.append(myHand)
 
