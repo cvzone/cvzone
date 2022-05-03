@@ -44,7 +44,7 @@ class FaceDetector:
                        int(bboxC.width * iw), int(bboxC.height * ih)
                 cx, cy = bbox[0] + (bbox[2] // 2), \
                          bbox[1] + (bbox[3] // 2)
-                bboxInfo = {"id": id, "bbox": bbox, "score": float(str(detection.score).strip("[]")), "center": (cx, cy)}
+                bboxInfo = {"id": id, "bbox": bbox, "score": detection.score, "center": (cx, cy)}
                 bboxs.append(bboxInfo)
                 if draw:
                     img = cv2.rectangle(img, bbox, (255, 0, 255), 2)
