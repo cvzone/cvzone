@@ -4,9 +4,10 @@ By: Computer Vision Zone
 Website: https://www.computervision.zone/
 """
 
-import cv2
+import numpy as np
 import mediapipe as mp
 import math
+import cv2
 
 
 class HandDetector:
@@ -17,7 +18,7 @@ class HandDetector:
     provides bounding box info of the hand found.
     """
 
-    def __init__(self, mode=False, maxHands=2, detectionCon=0.5, minTrackCon=0.5):
+    def __init__(self, mode=False, maxHands=2, detectionCon=0.5, minTrackCon=0.5, stablizerVal=2):
         """
         :param mode: In static mode, detection is done on each image: slower
         :param maxHands: Maximum number of hands to detect
@@ -28,6 +29,7 @@ class HandDetector:
         self.maxHands = maxHands
         self.detectionCon = detectionCon
         self.minTrackCon = minTrackCon
+        self.stablizerVal = stablizerVal
 
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(static_image_mode=self.mode, max_num_hands=self.maxHands,
@@ -37,6 +39,7 @@ class HandDetector:
         self.tipIds = [4, 8, 12, 16, 20]
         self.fingers = []
         self.lmList = []
+        self.previous_hands = [[[[0, 0, 0]] * 21, (0, 0, 0, 0), (0, 0), None]]
 
     def findHands(self, img, draw=True, flipType=True):
         """
@@ -70,6 +73,17 @@ class HandDetector:
                 cx, cy = bbox[0] + (bbox[2] // 2), \
                          bbox[1] + (bbox[3] // 2)
 
+                if len(allHands) > len(self.previous_hands):
+                    self.previous_hands.append([mylmList, bbox, (cx, cy), handLms])
+
+                else:
+
+                    if not np.allclose(mylmList, self.previous_hands[len(allHands) - 1][0], atol=self.stablizerVal):
+                        self.previous_hands[len(allHands) - 1] = [mylmList, bbox, (cx, cy), handLms]
+
+                    else:
+                        mylmList, bbox, (cx, cy), handLms = self.previous_hands[len(allHands) - 1]
+
                 myHand["lmList"] = mylmList
                 myHand["bbox"] = bbox
                 myHand["center"] = (cx, cy)
@@ -81,6 +95,7 @@ class HandDetector:
                         myHand["type"] = "Right"
                 else:
                     myHand["type"] = handType.classification[0].label
+
                 allHands.append(myHand)
 
                 ## draw
@@ -140,8 +155,8 @@ class HandDetector:
                  Line information
         """
 
-        x1, y1 = p1
-        x2, y2 = p2
+        x1, y1, _ = p1
+        x2, y2, _ = p2
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
         length = math.hypot(x2 - x1, y2 - y1)
         info = (x1, y1, x2, y2, cx, cy)
@@ -152,7 +167,7 @@ class HandDetector:
             cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
             return length, info, img
         else:
-            return length, info
+            return length
 
 
 def main():
