@@ -29,6 +29,8 @@ class HandDetector:
         self.detectionCon = detectionCon
         self.minTrackCon = minTrackCon
 
+        self.isFlipped = True
+
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(static_image_mode=self.mode, max_num_hands=self.maxHands,
                                         min_detection_confidence=self.detectionCon,
@@ -75,11 +77,13 @@ class HandDetector:
                 myHand["center"] = (cx, cy)
 
                 if flipType:
+                    self.isFlipped = True
                     if handType.classification[0].label == "Right":
                         myHand["type"] = "Left"
                     else:
                         myHand["type"] = "Right"
                 else:
+                    self.isFlipped = False
                     myHand["type"] = handType.classification[0].label
                 allHands.append(myHand)
 
@@ -109,15 +113,15 @@ class HandDetector:
             fingers = []
             # Thumb
             if myHandType == "Right":
-                if myLmList[self.tipIds[0]][0] > myLmList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
-                else:
-                    fingers.append(0)
-            else:
                 if myLmList[self.tipIds[0]][0] < myLmList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
+                    fingers.append(0 if self.isFlipped else 1)
                 else:
-                    fingers.append(0)
+                    fingers.append(1 if self.isFlipped else 0)
+            else:
+                if myLmList[self.tipIds[0]][0] > myLmList[self.tipIds[0] - 1][0]:
+                    fingers.append(0 if self.isFlipped else 1)
+                else:
+                    fingers.append(1 if self.isFlipped else 0)
 
             # 4 Fingers
             for id in range(1, 5):
