@@ -221,11 +221,12 @@ while True:
     success, img = cap.read()
 
     # Find the hand and its landmarks
-    img = detector.findHands(img, draw=False)
-    lmList, bbox = detector.findPosition(img, draw=False)
-    if bbox:
-        # Draw  Corner Rectangle
-        cvzone.cornerRect(img, bbox)
+    hands = detector.findHands(img, draw=False)
+    if hands:
+      hand1 = hands[0]
+      lmList1 = hand1["lmList"] 
+      bbox1 = hand1["bbox"]
+      cvzone.cornerRect(img, bbox1)
 
     # Display
     cv2.imshow("Image", img)
