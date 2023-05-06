@@ -78,12 +78,13 @@ def cornerRect(img, bbox, l=30, t=5, rt=1,
     return img
 
 
-def findContours(img, imgPre, minArea=1000, sort=True, filter=0, drawCon=True, c=(255, 0, 0)):
+def findContours(img, imgPre, minArea=1000, maxArea = 500000, sort=True, filter=0, drawCon=True, c=(255, 0, 0)):
     """
     Finds Contours in an image
     :param img: Image on which we want to draw
     :param imgPre: Image on which we want to find contours
     :param minArea: Minimum Area to detect as valid contour
+    :param maxArea: Maximin Area to detect as valid contour
     :param sort: True will sort the contours by area (biggest first)
     :param filter: Filters based on the corner points e.g. 4 = Rectangle or square
     :param drawCon: draw contours boolean
@@ -95,7 +96,7 @@ def findContours(img, imgPre, minArea=1000, sort=True, filter=0, drawCon=True, c
 
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if area > minArea:
+        if minArea < area < maxArea:
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
             # print(len(approx))
