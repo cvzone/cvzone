@@ -29,6 +29,7 @@ while True:
             handType2 = hand2["type"]  # Hand Type "Left" or "Right"
 
             fingers2 = detector.fingersUp(hand2)
+            print (fingers2)
 
             # Find Distance between two Landmarks. Could be same hand or different hands
             length, info, img = detector.findDistance(lmList1[8], lmList2[8], img)  # with draw
