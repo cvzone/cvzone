@@ -263,3 +263,23 @@ cap.release()
 cv2.destroyAllWindows()
 </pre>
 
+
+### Fingers UP
+
+<hr>
+
+The [cvzone](https://github.com/cvzone) library uses the fingersUp function of the HandDetector class of the HandTrackingModule module to count open fingers.
+This function gives the correct answer for the normal state where the hand is shown vertically to the camera, but if you tilt the hand, turn the hand upside down or hold the back of the hand to the camera, you cannot get a correct answer from this function. As an example, you can see the video below.
+
+<p align="center">
+  <img width="640" height="360" src="https://github.com/cvzone/Gifs/Bug.gif">
+</p>
+
+
+In this version, I have upgraded this function to cover the previously mentioned cases (tilting the hand, turning the hand upside down, showing the back of the hand). As an example, you can see the video below.
+
+<p align="center">
+  <img width="640" height="360" src="https://github.com/cvzone/Gifs/Fixed Method.gif">
+</p>
+
+To do the mentioned things, we first measure the angle of the hand with the vertical axis and then rotate the LandMarkList by the same amount to send the correct information to the main function.
