@@ -95,9 +95,9 @@ class PoseDetector:
         """
 
         # Get the landmarks
-        x1, y1 = self.lmList[p1][1:]
-        x2, y2 = self.lmList[p2][1:]
-        x3, y3 = self.lmList[p3][1:]
+        x1, y1 = self.lmList[p1][1:3]
+        x2, y2 = self.lmList[p2][1:3]
+        x3, y3 = self.lmList[p3][1:3]
 
         # Calculate the Angle
         angle = math.degrees(math.atan2(y3 - y2, x3 - x2) -
@@ -120,8 +120,8 @@ class PoseDetector:
         return angle
 
     def findDistance(self, p1, p2, img, draw=True, r=15, t=3):
-        x1, y1 = self.lmList[p1][1:]
-        x2, y2 = self.lmList[p2][1:]
+        x1, y1 = self.lmList[p1][1:3]
+        x2, y2 = self.lmList[p2][1:3]
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
 
         if draw:
