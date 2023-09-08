@@ -18,3 +18,6 @@ You can  simply use pip to install the latest version of cvzone.
 ## Examples
 For sample usage and examples, please refer to the Examples folder in this repository. This folder contains various examples to help you understand how to make the most out of cvzone's features.
 
+## Video Documentation
+
+[![YouTube Video](https://img.youtube.com/vi/ieXQTtQgyo0/0.jpg)](https://youtu.be/ieXQTtQgyo0)
