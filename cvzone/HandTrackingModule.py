@@ -232,8 +232,6 @@ def main():
             fingers1 = detector.fingersUp(hand1)
             print(f'H1 = {fingers1.count(1)}', end=" ")  # Print the count of fingers that are up
 
-            print(angle1)
-
             # Calculate distance between specific landmarks on the first hand and draw it on the image
             length, info, img = detector.findDistance(lmList1[8][0:2], lmList1[12][0:2], img, color=(255, 0, 255),
                                                       scale=10)
