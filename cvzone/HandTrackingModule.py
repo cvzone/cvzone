@@ -87,6 +87,39 @@ class HandDetector:
                         myHand["type"] = "Right"
                 else:
                     myHand["type"] = handType.classification[0].label
+
+                wristPoistion = mylmList[0]
+                middleMCP = mylmList[9]
+
+                vector = [wristPoistion[0] - middleMCP[0], wristPoistion[1] - middleMCP[1]]
+                angle = math.atan2(vector[0], vector[1])
+
+                myHand["angle"]= math.degrees(angle) % 360
+
+                thumbPosition = mylmList[1]
+                pinkyPosition = mylmList[17]
+
+                # Determine the hand orientation based on the hand type.
+                if myHand["type"] == "Right":
+                    if thumbPosition[0] > pinkyPosition[0]:
+                        handOrientation = "Front"
+                    else:
+                        handOrientation = "Back"
+                else:
+                    if thumbPosition[0] < pinkyPosition[0]:
+                        handOrientation = "Front"
+                    else:
+                        handOrientation = "Back"
+
+                # Flip hand orientation if the angle is between 80 and 260 degrees
+                if 80 < myHand["angle"] < 260:
+                    if handOrientation == "Front":
+                        handOrientation = "Back"
+                    elif handOrientation == "Back":
+                        handOrientation = "Front"
+
+                myHand["orientation"] = handOrientation
+
                 allHands.append(myHand)
 
                 ## draw
@@ -110,26 +143,34 @@ class HandDetector:
         fingers = []
         myHandType = myHand["type"]
         myLmList = myHand["lmList"]
+        myOrientation = myHand["orientation"]
         if self.results.multi_hand_landmarks:
-
             # Thumb
             if myHandType == "Right":
-                if myLmList[self.tipIds[0]][0] > myLmList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
-                else:
-                    fingers.append(0)
+                fingerUp = myLmList[self.tipIds[0]][0] > myLmList[self.tipIds[0] - 1][0]
             else:
-                if myLmList[self.tipIds[0]][0] < myLmList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
-                else:
-                    fingers.append(0)
+                fingerUp = myLmList[self.tipIds[0]][0] < myLmList[self.tipIds[0] - 1][0]
+
+            if myOrientation == "Back":
+                fingerUp = not fingerUp
+
+            if 80 < myHand["angle"] < 260:
+                fingerUp = not fingerUp
+
+            fingers.append(1 if fingerUp else 0)
 
             # 4 Fingers
             for id in range(1, 5):
                 if myLmList[self.tipIds[id]][1] < myLmList[self.tipIds[id] - 2][1]:
-                    fingers.append(1)
+                    if 80 < myHand["angle"] < 260:
+                        fingers.append(0)
+                    else:
+                        fingers.append(1)
                 else:
-                    fingers.append(0)
+                    if 80 < myHand["angle"] < 260:
+                        fingers.append(1)
+                    else:
+                        fingers.append(0)
         return fingers
 
     def findDistance(self, p1, p2, img=None, color=(255, 0, 255), scale=5):
@@ -184,6 +225,8 @@ def main():
             bbox1 = hand1["bbox"]  # Bounding box around the first hand (x,y,w,h coordinates)
             center1 = hand1['center']  # Center coordinates of the first hand
             handType1 = hand1["type"]  # Type of the first hand ("Left" or "Right")
+            orientation1 = hand1["orientation"] # Orientation of the first hand ("Front" or "Back")
+            angle1 = hand1["angle"] # Angle of the first hand (In degrees)
 
             # Count the number of fingers up for the first hand
             fingers1 = detector.fingersUp(hand1)
@@ -201,6 +244,8 @@ def main():
                 bbox2 = hand2["bbox"]
                 center2 = hand2['center']
                 handType2 = hand2["type"]
+                orientation2 = hand2["orientation"]
+                angle2 = hand2["angle"]
 
                 # Count the number of fingers up for the second hand
                 fingers2 = detector.fingersUp(hand2)
