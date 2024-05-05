@@ -135,16 +135,16 @@ class HandDetector:
     def findDistance(self, p1, p2, img=None, color=(255, 0, 255), scale=5):
         """
         Find the distance between two landmarks input should be (x1,y1) (x2,y2)
-        :param p1: Point1 (x1,y1)
-        :param p2: Point2 (x2,y2)
+        :param p1: Point1 (x1,y1,z1)
+        :param p2: Point2 (x2,y2,z2)
         :param img: Image to draw output on. If no image input output img is None
         :return: Distance between the points
                  Image with output drawn
                  Line information
         """
 
-        x1, y1 = p1
-        x2, y2 = p2
+        x1, y1, z1 = p1
+        x2, y2, z2 = p2
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
         length = math.hypot(x2 - x1, y2 - y1)
         info = (x1, y1, x2, y2, cx, cy)
