@@ -139,6 +139,26 @@ class HandDetector:
                 else:
                     fingers.append(0)
         return fingers
+    
+    def fingerUp(self, finger, myHand = 0):
+        """
+        Check if a specific finger is up
+        :param finger: Index of the finger tip
+        :return: 1 if up, 0 if down
+        """
+        fingers = self.fingersUp(myHand)
+        if not fingers: return 0
+        return fingers[int(finger / 4) -1] == 1
+    
+    def fingerOnlyUp(self, finger, myHand = 0):
+        """
+        Check if a specific finger is the ONLY finger up
+        :param finger: Index of the finger tip
+        :return: 1 if up, 0 if down
+        """
+        fingers = self.fingersUp(myHand)
+        if not fingers: return 0
+        return sum (fingers) == 1 and fingers[int(finger / 4) -1] == 1
 
     def findDistance(self, p1, p2, img=None, color=(255, 0, 255), scale=5):
         """
@@ -200,7 +220,11 @@ def main():
             # Calculate distance between specific landmarks on the first hand and draw it on the image
             length, info, img = detector.findDistance(lmList1[detector.INDEX][0:2], lmList1[detector.MIDDLE][0:2], img, color=(255, 0, 255),
                                                       scale=10)
-
+    
+            # Check if only the index finger of the first hand is up
+            if detector.fingerOnlyUp(detector.INDEX, hand1):
+                print("Only index finger is up in first hand")
+            
             # Check if a second hand is detected
             if len(hands) == 2:
                 # Information for the second hand
@@ -213,6 +237,10 @@ def main():
                 # Count the number of fingers up for the second hand
                 fingers2 = detector.fingersUp(hand2)
                 print(f'H2 = {fingers2.count(1)}', end=" ")
+                
+                # Check if both index fingers are up
+                if detector.fingerUp(detector.INDEX, hand1) and detector.fingerUp(detector.INDEX, hand2):
+                    print("Index fingers up")
 
                 # Calculate distance between the index fingers of both hands and draw it on the image
                 length, info, img = detector.findDistance(lmList1[detector.INDEX][0:2], lmList2[detector.INDEX][0:2], img, color=(255, 0, 0),
@@ -224,7 +252,11 @@ def main():
         cv2.imshow("Image", img)
 
         # Keep the window open and update it for each frame; wait for 1 millisecond between frames
-        cv2.waitKey(1)
+        key = cv2.waitKey(1)
+        
+        # Break the loop if the 'q' key is pressed
+        if key == ord('q'):
+            break
 
 
 if __name__ == "__main__":
