@@ -50,7 +50,7 @@ class HandDetector:
         self.fingers = []
         self.lmList = []
 
-    def findHands(self, img, draw=True, flipType=True):
+    def findHands(self, img, drawConnections=True, drawBBox = True, flipType=True):
         """
         Finds hands in a BGR image.
         :param img: Image to find the hands in.
@@ -95,10 +95,12 @@ class HandDetector:
                     myHand["type"] = handType.classification[0].label
                 allHands.append(myHand)
 
-                ## draw
-                if draw:
+                ## draw connections
+                if drawConnections:
                     self.mpDraw.draw_landmarks(img, handLms,
                                                self.mpHands.HAND_CONNECTIONS)
+                ## draw bounding box and label
+                if drawBBox:
                     cv2.rectangle(img, (bbox[0] - 20, bbox[1] - 20),
                                   (bbox[0] + bbox[2] + 20, bbox[1] + bbox[3] + 20),
                                   (255, 0, 255), 2)
@@ -180,7 +182,7 @@ def main():
         # Find hands in the current frame
         # The 'draw' parameter draws landmarks and hand outlines on the image if set to True
         # The 'flipType' parameter flips the image, making it easier for some detections
-        hands, img = detector.findHands(img, draw=True, flipType=True)
+        hands, img = detector.findHands(img, drawConnections=True, drawBBox=True, flipType=True)
 
         # Check if any hands are detected
         if hands:
