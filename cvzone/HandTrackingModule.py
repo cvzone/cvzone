@@ -39,8 +39,14 @@ class HandDetector:
                                         min_detection_confidence=self.detectionCon,
                                         min_tracking_confidence=self.minTrackCon)
 
+        self.THUMB = 4
+        self.INDEX = 8
+        self.MIDDLE = 12
+        self.RING = 16
+        self.PINKY = 20
+
         self.mpDraw = mp.solutions.drawing_utils
-        self.tipIds = [4, 8, 12, 16, 20]
+        self.tipIds = [self.THUMB, self.INDEX, self.MIDDLE, self.RING, self.PINKY]
         self.fingers = []
         self.lmList = []
 
@@ -190,7 +196,7 @@ def main():
             print(f'H1 = {fingers1.count(1)}', end=" ")  # Print the count of fingers that are up
 
             # Calculate distance between specific landmarks on the first hand and draw it on the image
-            length, info, img = detector.findDistance(lmList1[8][0:2], lmList1[12][0:2], img, color=(255, 0, 255),
+            length, info, img = detector.findDistance(lmList1[detector.INDEX][0:2], lmList1[detector.MIDDLE][0:2], img, color=(255, 0, 255),
                                                       scale=10)
 
             # Check if a second hand is detected
@@ -207,7 +213,7 @@ def main():
                 print(f'H2 = {fingers2.count(1)}', end=" ")
 
                 # Calculate distance between the index fingers of both hands and draw it on the image
-                length, info, img = detector.findDistance(lmList1[8][0:2], lmList2[8][0:2], img, color=(255, 0, 0),
+                length, info, img = detector.findDistance(lmList1[detector.INDEX][0:2], lmList2[detector.INDEX][0:2], img, color=(255, 0, 0),
                                                           scale=10)
 
             print(" ")  # New line for better readability of the printed output
