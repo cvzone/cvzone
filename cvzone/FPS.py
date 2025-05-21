@@ -5,8 +5,10 @@ Website: https://www.computervision.zone/
 """
 
 import time
+from typing import Optional, Tuple, Union
 import cv2
 import cvzone
+import numpy as np
 
 
 class FPS:
@@ -19,7 +21,7 @@ class FPS:
         avgCount (int): Number of frames over which to average the FPS.
     """
 
-    def __init__(self, avgCount=30):
+    def __init__(self, avgCount: int = 30) -> None:
         """
         Initialize FPS class.
 
@@ -29,8 +31,28 @@ class FPS:
         self.frameTimes = []  # List to store the time taken for each frame
         self.avgCount = avgCount  # Number of frames to average over
 
-    def update(self, img=None, pos=(20, 50), bgColor=(255, 0, 255),
-               textColor=(255, 255, 255), scale=3, thickness=3):
+    def reset(self) -> None:
+        """
+        Reset the FPS counter by clearing frame times and resetting the previous time.
+        """
+        self.pTime = time.time()
+        self.frameTimes.clear()
+
+    def get_fps(self) -> float:
+        """
+        Get the current FPS without updating the counter.
+
+        :return: Current FPS value
+        """
+        if not self.frameTimes:
+            return 0.0
+        avgFrameTime = sum(self.frameTimes) / len(self.frameTimes)
+        return 1 / avgFrameTime
+
+    def update(self, img: Optional[np.ndarray] = None, pos: Tuple[int, int] = (20, 50),
+               bgColor: Tuple[int, int, int] = (255, 0, 255),
+               textColor: Tuple[int, int, int] = (255, 255, 255),
+               scale: int = 3, thickness: int = 3) -> Union[float, Tuple[float, np.ndarray]]:
         """
         Update the frame rate and optionally display it on the image.
 
@@ -42,7 +64,6 @@ class FPS:
         :param thickness: Thickness of the FPS text.
         :return: FPS value, and optionally the image with FPS drawn on it.
         """
-
         cTime = time.time()  # Get the current time
         frameTime = cTime - self.pTime  # Calculate the time difference between the current and previous frame
         self.frameTimes.append(frameTime)  # Append the time difference to the list
@@ -52,15 +73,15 @@ class FPS:
         if len(self.frameTimes) > self.avgCount:
             self.frameTimes.pop(0)
 
-        avgFrameTime = sum(self.frameTimes) / len(self.frameTimes)  # Calculate the average frame time
-        fps = 1 / avgFrameTime  # Calculate FPS based on the average frame time
+        fps = self.get_fps()
 
         # Draw FPS on image if img is provided
         if img is not None:
             cvzone.putTextRect(img, f'FPS: {int(fps)}', pos,
                                scale=scale, thickness=thickness, colorT=textColor,
                                colorR=bgColor, offset=10)
-        return fps, img
+            return fps, img
+        return fps
 
 
 
