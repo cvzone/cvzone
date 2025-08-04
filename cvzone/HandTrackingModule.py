@@ -111,7 +111,6 @@ class HandDetector:
         myHandType = myHand["type"]
         myLmList = myHand["lmList"]
         if self.results.multi_hand_landmarks:
-
             # Thumb
             if myHandType == "Right":
                 if myLmList[self.tipIds[0]][0] > myLmList[self.tipIds[0] - 1][0]:
@@ -156,6 +155,53 @@ class HandDetector:
 
         return length, info, img
 
+    def findAngle(self, p1, p2, p3, img=None, color=(255, 0, 255), scale=5):
+        """
+        Finds angle between three points.
+
+        :param p1: Point1 - (x1,y1)
+        :param p2: Point2 - (x2,y2)
+        :param p3: Point3 - (x3,y3)
+        :param img: Image to draw output on. If no image input output img is None
+        :return:
+        """
+
+        # Get the landmarks
+        x1, y1 = p1
+        x2, y2 = p2
+        x3, y3 = p3
+
+        # Calculate the Angle
+        angle = math.degrees(
+            math.atan2(y3 - y2, x3 - x2) - math.atan2(y1 - y2, x1 - x2)
+        )
+        if angle < 0:
+            angle += 360
+
+        # Draw
+        if img is not None:
+            cv2.line(img, (x1, y1), (x2, y2), (255, 255, 255), max(1, scale // 5))
+            cv2.line(img, (x3, y3), (x2, y2), (255, 255, 255), max(1, scale // 5))
+            cv2.circle(img, (x1, y1), scale, color, cv2.FILLED)
+            cv2.circle(img, (x1, y1), scale + 5, color, max(1, scale // 5))
+            cv2.circle(img, (x2, y2), scale, color, cv2.FILLED)
+            cv2.circle(img, (x2, y2), scale + 5, color, max(1, scale // 5))
+            cv2.circle(img, (x3, y3), scale, color, cv2.FILLED)
+            cv2.circle(img, (x3, y3), scale + 5, color, max(1, scale // 5))
+            cv2.putText(
+                img,
+                str(int(angle)),
+                (x2 - 50, y2 + 50),
+                cv2.FONT_HERSHEY_PLAIN,
+                2,
+                color,
+                max(1, scale // 5),
+            )
+        return angle, img
+
+    def angleCheck(self, myAngle, targetAngle, offset=20):
+        return targetAngle - offset < myAngle < targetAngle + offset
+
 
 def main():
     # Initialize the webcam to capture video
@@ -199,7 +245,7 @@ def main():
                 hand2 = hands[1]
                 lmList2 = hand2["lmList"]
                 bbox2 = hand2["bbox"]
-                center2 = hand2['center']
+                center2 = hand2["center"]
                 handType2 = hand2["type"]
 
                 # Count the number of fingers up for the second hand
